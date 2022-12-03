@@ -635,3 +635,4 @@ jsondump(JSON, FileName) :-
     jsonwrite(Stream, JSON),
     nl(Stream),
     close(Stream).
+
