@@ -54,18 +54,18 @@ sign(X) :-
     char_code('-', X).
 
 %% la sintassi di escape dei caratteri di prolog implementa
-%% escape che in prolog non sono ammessi, dunque devo controllare
+%% escape che in JSON non sono ammessi, dunque devo controllare
 %% che non siano presenti nella stringa su cui si sta lavorando.
 %% FONTE: https://www.swi-prolog.org/pldoc/man?section=charescapes
 
 %% ECCEZIONI:
-%% - \s: e' il semplice carattere di spazio.
+%% - '\s' e '\40': sono il semplice carattere di spazio [32].
 
-illegal_escape(X) :-
-    char_code('\a', X);
-    char_code('\e', X);
-    char_code('\v', X);
-    char_code('\`', X).
+%% illegal_escape(X) :-
+%%     char_code('\a', X);
+%%     char_code('\e', X);
+%%     char_code('\v', X);
+%%     char_code('\`', X).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -221,7 +221,7 @@ parsestring([X, Y | Xs], [Y | Ys], Zs) :-
     !.
 
 parsestring([X | Xs], [X | Ys], Zs) :-
-    not(illegal_escape(X)),
+    %% not(illegal_escape(X)),
     parsestring(Xs, Ys, Zs),
     !.
 
@@ -468,6 +468,10 @@ jsonaccess(Jsonobj, Field, Result) :-
     jsonaccess(Jsonobj, [Field], Result),
     !.
 
+jsonaccess(Jsonobj, [], Jsonobj) :-
+    Jsonobj = jsonobj(_),
+    !.
+
 jsonaccess(Jsonobj, [Field], Result) :-
     Jsonobj = jsonobj(Object),
     pairfinder(Object, Field, Result),
@@ -487,7 +491,7 @@ jsonaccess(Jsonobj, [Field | MoreField], NewResult) :-
 
 jsonaccess(Jsonobj, [Field | MoreField], NewResult) :-
     Jsonobj = jsonarray(Array),
-    integer(Field)
+    integer(Field),
     elementsfinder(Array, Field, Result),
     jsonaccess(Result, MoreField, NewResult), 
     !.
